@@ -1,0 +1,9 @@
+services:
+  db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=unialgo
+      - MYSQL_ROOT_PASSWORD=unialgo
+      - MYSQL_DATABASE=unialgo
