@@ -3,8 +3,12 @@ package com.ua.unialgo.user.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Entity
+@Getter
+@AllArgsConstructor
 public class Teacher {
 
     @Id
@@ -24,9 +28,5 @@ public class Teacher {
         return String.format(
                 "Customer[id=%d, name='%s']",
                 id, name);
-    }
-
-    public String getName() {
-        return name;
     }
 }
