@@ -15,7 +15,7 @@ public class Question {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "question_id")
+    @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
     private String summary;

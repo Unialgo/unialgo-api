@@ -4,6 +4,29 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_USER=unialgo
-      - MYSQL_ROOT_PASSWORD=unialgo
-      - MYSQL_DATABASE=unialgo
+      MYSQL_USER: unialgo
+      MYSQL_ROOT_PASSWORD: unialgo
+      MYSQL_DATABASE: unialgo
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.4
+    command:
+      - start-dev
+    ports:
+      - "8180:8180"
+    environment:
+      KEYCLOAK_ADMIN: unialgo
+      KEYCLOAK_ADMIN_PASSWORD: unialgo
+      KC_HTTP_PORT: 8180
+      KC_HOSTNAME_URL: http://localhost:8180
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8180
+      KC_HOSTNAME_STRICT_BACKCHANNEL: true
+      KC_HTTP_RELATIVE_PATH: /
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/auth/health/live' ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
