@@ -14,10 +14,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public void syncUser(DecodedJWT jwt) {
-        String id = jwt.getSubject();
-        String username = jwt.getClaim("preferred_username").asString();
-
+    public void syncUser(String id, String username) {
         userRepository.findById(id).orElseGet(() -> {
             User user = new User(id, username);
 
