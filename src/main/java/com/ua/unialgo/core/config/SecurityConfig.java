@@ -1,5 +1,6 @@
 package com.ua.unialgo.core.config;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -57,6 +60,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http,
                                                           Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter) throws Exception {
+        http.cors(cors -> cors.disable());
+
         http.oauth2ResourceServer(resourceServer -> {
             resourceServer.jwt(jwtDecoder -> {
                 jwtDecoder.jwtAuthenticationConverter(jwtAuthenticationConverter);
@@ -76,4 +81,17 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+//    @Bean
+//    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//
+//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE"));
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//
+//        return source;
+//    }
 }
