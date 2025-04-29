@@ -4,9 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class User {
 
@@ -14,13 +16,4 @@ public class User {
     private String id; // Keycloak's UUID
 
     private String username;
-
-    protected User() {}
-
-    @Override
-    public String toString() {
-        return String.format(
-                "User[id='%s', username='%s']",
-                id, username);
-    }
 }

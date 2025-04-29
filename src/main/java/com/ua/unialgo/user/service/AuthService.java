@@ -48,8 +48,9 @@ public class AuthService {
 
             String id = jwt.getSubject();
             String username = jwt.getClaim("preferred_username").asString();
+//          TODO: Retrieve role
 
-            userService.syncUser(id, username);
+            userService.syncUser(id, username, "");
 
             return ResponseEntity.ok(response.getBody());
 
@@ -66,7 +67,7 @@ public class AuthService {
 
             this.assignRoleToUser(userId, signupRequest.role(), accessToken);
 
-            userService.syncUser(userId, signupRequest.username());
+            userService.syncUser(userId, signupRequest.username(), signupRequest.role());
 
             return ResponseEntity.ok(userId);
         } catch (HttpClientErrorException e) {

@@ -1,28 +1,27 @@
 package com.ua.unialgo.question.entity;
 
-import com.ua.unialgo.user.entity.Teacher;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Question {
+public class TestCase {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
 
     @ManyToOne
     @JoinColumn
-    private Teacher teacher;
+    private Question question;
 
-    private String title;
+    private String input;
 
-    private String statement;
+    private String expectedOutput;
+
+    private boolean isExample;
 }

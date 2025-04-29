@@ -1,32 +1,23 @@
 package com.ua.unialgo.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class Teacher {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
-    protected Teacher() {}
-
-    public Teacher(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "Customer[id=%d, name='%s']",
-                id, name);
-    }
+    @OneToOne
+    @JoinColumn
+    private User user;
 }
