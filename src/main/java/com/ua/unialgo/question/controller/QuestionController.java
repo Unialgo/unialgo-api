@@ -23,7 +23,7 @@ public class QuestionController {
     }
 
     @GetMapping(path = "/{id}")
-    ResponseEntity<?> getQuestionById(@RequestParam Long id) {
+    ResponseEntity<?> getQuestionById(@PathVariable Long id) {
         return questionService.getQuestionById(id);
     }
 
@@ -34,14 +34,14 @@ public class QuestionController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_TEACHER')")
-    @PatchMapping(path = "/{id}")
-    ResponseEntity<?> updateQuestionById(@RequestParam Long id, @RequestBody SaveQuestionRequestDto body) {
+    @PutMapping(path = "/{id}")
+    ResponseEntity<?> updateQuestionById(@PathVariable Long id, @RequestBody SaveQuestionRequestDto body) {
         return questionService.updateQuestionById(id, body);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_TEACHER')")
     @DeleteMapping(path = "/{id}")
-    ResponseEntity<?> deleteQuestionById(@RequestParam Long id) {
+    ResponseEntity<?> deleteQuestionById(@PathVariable Long id) {
         return questionService.deleteQuestionById(id);
     }
 

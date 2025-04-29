@@ -59,6 +59,8 @@ public class QuestionService {
         questionInDb.setTitle(saveQuestionRequest.title());
         questionInDb.setStatement(saveQuestionRequest.statement());
 
+        questionRepository.save(questionInDb);
+
         return ResponseEntity.ok(questionInDb.getId());
     }
 
