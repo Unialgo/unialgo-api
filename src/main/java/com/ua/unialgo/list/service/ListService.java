@@ -63,10 +63,10 @@ public class ListService {
         List listInDb = listRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("List not found with id: " + id));
 
-        list.setTitle(saveListRequest.title());
-        list.setDescription(saveListRequest.description());
-        list.setStartDate(saveListRequest.startDate());
-        list.setEndDate(saveListRequest.endDate());
+        listInDb.setTitle(saveListRequest.title());
+        listInDb.setDescription(saveListRequest.description());
+        listInDb.setStartDate(saveListRequest.startDate());
+        listInDb.setEndDate(saveListRequest.endDate());
 
         listRepository.save(listInDb);
 
