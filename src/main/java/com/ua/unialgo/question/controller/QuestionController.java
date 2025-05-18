@@ -25,8 +25,8 @@ public class QuestionController {
     public QuestionController(QuestionService questionService) { this.questionService = questionService; }
 
     @GetMapping
-    ResponseEntity<?> getAllQuestions() {
-        return questionService.getAllQuestions();
+    ResponseEntity<?> getAllQuestions(Principal principal) {
+        return questionService.getAllQuestions(principal);
     }
 
     @GetMapping(path = "/{id}/assignment")
