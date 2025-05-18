@@ -56,7 +56,7 @@ public class AuthService {
             String username = jwt.getClaim("preferred_username").asString();
 //          TODO: Retrieve role
 
-            userService.syncUser(id, username, "");
+            userService.syncUser(id, username, "TEACHER");
 
             return ResponseEntity.ok(response.getBody());
 
