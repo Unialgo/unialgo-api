@@ -9,6 +9,12 @@ import com.ua.unialgo.user.repository.TeacherRepository;
 import com.ua.unialgo.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+/**
+ * SOLID - Single Responsibility Principle (SRP):
+ * A UserService é responsável apenas por gerenciar a lógica de negócios relacionada aos usuários.
+ * Outras responsabilidades, como persistência de dados, são delegadas a repositórios específicos,
+ * como UserRepository, TeacherRepository e StudentRepository.
+ */
 @Service
 public class UserService {
 
