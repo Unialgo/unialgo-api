@@ -1,4 +1,4 @@
-package com.ua.unialgo.list.entity;
+package com.ua.unialgo.assignment.entity;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class List {
+public class Assignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
