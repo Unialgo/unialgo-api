@@ -2,7 +2,6 @@ package com.ua.unialgo.assignment.controller;
 
 import java.security.Principal;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,10 +60,9 @@ public class AssignmentController {
     }
 
     @PreAuthorize("hasRole('ROLE_TEACHER')")
-    @PostMapping("/assignments/{id}/question")
+    @PostMapping("/{id}/question")
     public ResponseEntity<?> addQuestionToAssignment(@PathVariable Long id, @RequestBody AddQuestionsRequestDto body) {
-        questionAssignmentService.addQuestionToAssignment(id, body);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return questionAssignmentService.addQuestionToAssignment(id, body);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_TEACHER')")
