@@ -1,3 +1,3 @@
-package com.ua.unialgo.list.dto;
+package com.ua.unialgo.assignment.dto;
 
 public record AddQuestionsRequestDto(Long questionId, int index) {}

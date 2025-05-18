@@ -1,4 +1,4 @@
-package com.ua.unialgo.list.entity;
+package com.ua.unialgo.assignment.entity;
 
 import com.ua.unialgo.question.entity.Question;
 
@@ -13,20 +13,20 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionList {
+public class QuestionAssignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "list_id", nullable = false)
-    private List list;
+    @JoinColumn(name = "assignment_id", nullable = false)
+    private Assignment assignment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @Column(name = "list_position")
-    private int listPosition;
+    @Column(name = "assignment_position")
+    private int assignmentPosition;
 }

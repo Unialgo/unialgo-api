@@ -933,8 +933,8 @@
     } ]
   }, {
     "id" : "d8832c56-54de-4afe-ae31-99fe2d59aa83",
-    "name" : "role_list",
-    "description" : "SAML role list",
+    "name" : "role_assignment",
+    "description" : "SAML role assignment",
     "protocol" : "saml",
     "attributes" : {
       "consent.screen.text" : "${samlRoleListScopeConsentText}",
@@ -942,9 +942,9 @@
     },
     "protocolMappers" : [ {
       "id" : "e1cbc6eb-28e2-4507-9fea-96ce34f56b7e",
-      "name" : "role list",
+      "name" : "role assignment",
       "protocol" : "saml",
-      "protocolMapper" : "saml-role-list-mapper",
+      "protocolMapper" : "saml-role-assignment-mapper",
       "consentRequired" : false,
       "config" : {
         "single" : "false",
@@ -1437,7 +1437,7 @@
       }
     } ]
   } ],
-  "defaultDefaultClientScopes" : [ "role_list", "saml_organization", "profile", "email", "roles", "web-origins", "acr", "basic" ],
+  "defaultDefaultClientScopes" : [ "role_assignment", "saml_organization", "profile", "email", "roles", "web-origins", "acr", "basic" ],
   "defaultOptionalClientScopes" : [ "offline_access", "address", "phone", "microprofile-jwt", "organization" ],
   "browserSecurityHeaders" : {
     "contentSecurityPolicyReportOnly" : "",
@@ -1516,7 +1516,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "saml-user-attribute-mapper", "oidc-usermodel-attribute-mapper", "saml-role-list-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-address-mapper", "saml-user-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-property-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-user-attribute-mapper", "oidc-usermodel-attribute-mapper", "saml-role-assignment-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-address-mapper", "saml-user-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-property-mapper" ]
       }
     }, {
       "id" : "ba107d51-5728-47b9-99e4-44e50c6c9eb3",
@@ -1525,7 +1525,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "saml-role-list-mapper", "oidc-full-name-mapper", "saml-user-property-mapper", "oidc-usermodel-property-mapper", "oidc-usermodel-attribute-mapper", "oidc-address-mapper", "saml-user-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "saml-role-assignment-mapper", "oidc-full-name-mapper", "saml-user-property-mapper", "oidc-usermodel-property-mapper", "oidc-usermodel-attribute-mapper", "oidc-address-mapper", "saml-user-attribute-mapper" ]
       }
     } ],
     "org.keycloak.keys.KeyProvider" : [ {

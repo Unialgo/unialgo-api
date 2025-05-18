@@ -29,6 +29,12 @@ public class QuestionService {
         return ResponseEntity.ok(questions);
     }
 
+    public ResponseEntity<?> getAllQuestionsByAssignmentId(Long id) {
+        Iterable<Question> questions = questionRepository.findAllByAssignmentId(id);
+
+        return ResponseEntity.ok(questions);
+    }
+
     public ResponseEntity<?> getQuestionById(Long id) {
         Optional<Question> question = questionRepository.findById(id);
 
