@@ -23,8 +23,12 @@ public class QuestionService {
         this.teacherRepository = teacherRepository;
     }
 
-    public ResponseEntity<?> getAllQuestions() {
-        Iterable<Question> questions = questionRepository.findAll();
+    public ResponseEntity<?> getAllQuestions(Principal principal) {
+        String userId = principal.getName();
+        Teacher teacher = teacherRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Teacher not found with id: " + userId));
+
+        Iterable<Question> questions = questionRepository.findAllByTeacherId(teacher.getId());
 
         return ResponseEntity.ok(questions);
     }

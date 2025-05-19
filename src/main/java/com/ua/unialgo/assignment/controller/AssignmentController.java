@@ -32,8 +32,8 @@ public class AssignmentController {
     }
 
     @GetMapping
-    ResponseEntity<?> getAllAssignments() {
-        return assignmentService.getAllAssignments();
+    ResponseEntity<?> getAllAssignments(Principal principal) {
+        return assignmentService.getAllAssignments(principal);
     }
 
     @GetMapping(path = "/{id}")

@@ -26,8 +26,12 @@ public class AssignmentService {
         this.teacherRepository = teacherRepository;
     }
 
-    public ResponseEntity<?> getAllAssignments() {
-        Iterable<Assignment> assignments = assignmentRepository.findAll();
+    public ResponseEntity<?> getAllAssignments(Principal principal) {
+        String userId = principal.getName();
+        Teacher teacher = teacherRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Teacher not found with id: " + userId));
+
+        Iterable<Assignment> assignments = assignmentRepository.findAllByTeacherId(teacher.getId());
 
         return ResponseEntity.ok(assignments);
     }
