@@ -1,35 +1,111 @@
+version: '3.8'
+
+x-logging:
+  &default-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100M
+
 services:
-  db:
-    image: mysql:latest
+  # MySQL Database for Unialgo
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: unialgo
+      MYSQL_USER: unialgo
+      MYSQL_PASSWORD: unialgo
     ports:
       - "3306:3306"
-    environment:
-      MYSQL_USER: unialgo
-      MYSQL_ROOT_PASSWORD: unialgo
-      MYSQL_DATABASE: unialgo
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - unialgo-network
+    restart: always
+
+  # Keycloak for Authentication
   keycloak:
-    image: quay.io/keycloak/keycloak:26.1.4
-    command:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: unialgo
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
+    command: 
       - start-dev
       - --import-realm
-    ports:
-      - "8180:8180"
     volumes:
-      - ./keycloak/:/opt/keycloak/data/import
-    environment:
-      KEYCLOAK_ADMIN: unialgo
-      KEYCLOAK_ADMIN_PASSWORD: unialgo
-      KC_HTTP_PORT: 8180
-      KC_HOSTNAME_URL: http://localhost:8180
-      KC_HOSTNAME_ADMIN_URL: http://localhost:8180
-      KC_HOSTNAME_STRICT_BACKCHANNEL: true
-      KC_HTTP_RELATIVE_PATH: /
-      KC_HTTP_ENABLED: true
-      KC_HEALTH_ENABLED: true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    healthcheck:
-      test: [ 'CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/auth/health/live' ]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      - ./keycloak:/opt/keycloak/data/import
+    ports:
+      - "8180:8080"
+    depends_on:
+      - mysql
+    networks:
+      - unialgo-network
+    restart: always
+
+  # Judge0 Server
+  judge0-server:
+    image: judge0/judge0:1.13.1
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    privileged: true
+    <<: *default-logging
+    networks:
+      - unialgo-network
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    restart: always
+
+  # Judge0 Worker
+  judge0-worker:
+    image: judge0/judge0:1.13.1
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    privileged: true
+    <<: *default-logging
+    networks:
+      - unialgo-network
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    restart: always
+
+  # PostgreSQL Database for Judge0
+  judge0-db:
+    image: postgres:16.2
+    env_file: judge0.conf
+    volumes:
+      - judge0_postgres_data:/var/lib/postgresql/data/
+    <<: *default-logging
+    networks:
+      - unialgo-network
+    restart: always
+
+  # Redis for Judge0
+  judge0-redis:
+    image: redis:7.2.4
+    command: [
+      "bash", "-c",
+      'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"'
+    ]
+    env_file: judge0.conf
+    <<: *default-logging
+    networks:
+      - unialgo-network
+    restart: always
+
+networks:
+  unialgo-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  judge0_postgres_data:
