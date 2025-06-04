@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <!-- Create submissions table -->
+    <changeSet id="2025-01-04-01-create-submissions-table" author="claude">
+        <createTable tableName="submissions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="question_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="source_code" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="language_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="judge0_token" type="VARCHAR(50)"/>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stdout" type="TEXT"/>
+            <column name="stderr" type="TEXT"/>
+            <column name="compile_output" type="TEXT"/>
+            <column name="message" type="VARCHAR(255)"/>
+            <column name="exit_code" type="INT"/>
+            <column name="exit_signal" type="INT"/>
+            <column name="time" type="FLOAT"/>
+            <column name="wall_time" type="FLOAT"/>
+            <column name="memory" type="INT"/>
+            <column name="test_cases_passed" type="INT" defaultValue="0"/>
+            <column name="total_test_cases" type="INT" defaultValue="0"/>
+            <column name="score" type="FLOAT" defaultValue="0.0"/>
+            <column name="submission_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+            <column name="finished_at" type="TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Add foreign key constraints for submissions -->
+    <changeSet id="2025-01-04-02-add-submissions-foreign-keys" author="claude">
+        <addForeignKeyConstraint
+                baseTableName="submissions"
+                baseColumnNames="user_id"
+                constraintName="fk_submissions_user"
+                referencedTableName="user"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+        
+        <addForeignKeyConstraint
+                baseTableName="submissions"
+                baseColumnNames="question_id"
+                constraintName="fk_submissions_question"
+                referencedTableName="question"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- Add indexes for better performance -->
+    <changeSet id="2025-01-04-03-add-submissions-indexes" author="claude">
+        <createIndex tableName="submissions" indexName="idx_submissions_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        
+        <createIndex tableName="submissions" indexName="idx_submissions_question_id">
+            <column name="question_id"/>
+        </createIndex>
+        
+        <createIndex tableName="submissions" indexName="idx_submissions_user_question">
+            <column name="user_id"/>
+            <column name="question_id"/>
+        </createIndex>
+        
+        <createIndex tableName="submissions" indexName="idx_submissions_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="submissions" indexName="idx_submissions_judge0_token">
+            <column name="judge0_token"/>
+        </createIndex>
+        
+        <createIndex tableName="submissions" indexName="idx_submissions_submission_date">
+            <column name="submission_date"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Update Question table - add new columns -->
+    <changeSet id="2025-01-04-04-update-question-table" author="claude">
+        <addColumn tableName="question">
+            <column name="time_limit" type="FLOAT"/>
+            <column name="memory_limit" type="INT"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- Create question_allowed_languages table -->
+    <changeSet id="2025-01-04-05-create-question-allowed-languages" author="claude">
+        <createTable tableName="question_allowed_languages">
+            <column name="question_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="language_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addPrimaryKey 
+                tableName="question_allowed_languages" 
+                columnNames="question_id, language_id" 
+                constraintName="pk_question_allowed_languages"/>
+        
+        <addForeignKeyConstraint
+                baseTableName="question_allowed_languages"
+                baseColumnNames="question_id"
+                constraintName="fk_question_allowed_languages_question"
+                referencedTableName="question"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- Update TestCase table - add new columns -->
+    <changeSet id="2025-01-04-06-update-test_case-table" author="claude">
+        <addColumn tableName="test_case">
+            <column name="is_hidden" type="BOOLEAN" defaultValue="false"/>
+            <column name="weight" type="INT" defaultValue="1"/>
+        </addColumn>
+        
+        <!-- Update existing columns to use proper constraints -->
+        <modifyDataType tableName="test_case" columnName="input" newDataType="TEXT"/>
+        <modifyDataType tableName="test_case" columnName="expected_output" newDataType="TEXT"/>
+        
+        <!-- Rename column to match entity -->
+        <renameColumn tableName="test_case" oldColumnName="isExample" newColumnName="is_example"/>
+    </changeSet>
+
+    <!-- Update User table to support new structure -->
+    <changeSet id="2025-01-04-07-update-user-table" author="claude">
+        <!-- Add new ID column as auto-increment -->
+        <addColumn tableName="user">
+            <column name="user_id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="true"/>
+            </column>
+            <column name="keycloak_id" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+        </addColumn>
+        
+        <!-- Copy existing id to keycloak_id -->
+        <sql>
+            UPDATE user SET keycloak_id = id, email = username WHERE keycloak_id IS NULL;
+        </sql>
+        
+        <!-- Set user_id values -->
+        <sql>
+            SET @count = 0;
+            UPDATE user SET user_id = (@count := @count + 1);
+        </sql>
+        
+        <!-- Drop the old primary key and create new one -->
+        <dropPrimaryKey tableName="user"/>
+        
+        <addNotNullConstraint tableName="user" columnName="user_id"/>
+        <addNotNullConstraint tableName="user" columnName="keycloak_id"/>
+        <addNotNullConstraint tableName="user" columnName="email"/>
+        
+        <addPrimaryKey tableName="user" columnNames="user_id"/>
+        <addUniqueConstraint tableName="user" columnNames="keycloak_id"/>
+        <addUniqueConstraint tableName="user" columnNames="email"/>
+        
+        <!-- Drop old id column -->
+        <dropColumn tableName="user" columnName="id"/>
+        
+        <!-- Rename user_id to id -->
+        <renameColumn tableName="user" oldColumnName="user_id" newColumnName="id"/>
+    </changeSet>
+
+    <!-- Add comments for documentation -->
+    <changeSet id="2025-01-04-08-add-table-comments" author="claude">
+        <sql>
+            ALTER TABLE submissions COMMENT = 'Stores code submissions and evaluation results from Judge0';
+            ALTER TABLE question_allowed_languages COMMENT = 'Maps questions to allowed programming languages';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
