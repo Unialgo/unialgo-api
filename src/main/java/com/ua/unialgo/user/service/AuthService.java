@@ -1,23 +1,29 @@
 package com.ua.unialgo.user.service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.ua.unialgo.user.dto.LoginRequestDto;
-import com.ua.unialgo.user.dto.SignupRequestDto;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.ua.unialgo.user.dto.LoginRequestDto;
+import com.ua.unialgo.user.dto.SignupRequestDto;
 
 @Service
 public class AuthService {
+
     private final UserService userService;
 
     @Value("${keycloak.auth-server-url}")
@@ -50,7 +56,7 @@ public class AuthService {
             String username = jwt.getClaim("preferred_username").asString();
 //          TODO: Retrieve role
 
-            userService.syncUser(id, username, "");
+            userService.syncUser(id, username, "TEACHER");
 
             return ResponseEntity.ok(response.getBody());
 
@@ -116,13 +122,13 @@ public class AuthService {
 
         try {
             ResponseEntity<Map> response = restTemplate.exchange(
-                keycloakUrl + "/realms/master/protocol/openid-connect/token",
-                HttpMethod.POST,
-                entity,
-                Map.class
-        );
+                    keycloakUrl + "/realms/master/protocol/openid-connect/token",
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
 
-        return (String) response.getBody().get("access_token");
+            return (String) response.getBody().get("access_token");
 
         } catch (HttpClientErrorException e) {
             throw new HttpClientErrorException(e.getStatusCode(), e.getResponseBodyAsString());
@@ -156,10 +162,10 @@ public class AuthService {
         );
 
         ResponseEntity<List> response = restTemplate.exchange(
-        keycloakUrl + "/admin/realms/" + realm + "/users?username=" + username,
-            HttpMethod.GET,
-            new HttpEntity<>(headers),
-            List.class
+                keycloakUrl + "/admin/realms/" + realm + "/users?username=" + username,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                List.class
         );
 
         Map<String, Object> createdUser = (Map<String, Object>) response.getBody().get(0);
@@ -189,9 +195,39 @@ public class AuthService {
         HttpEntity<?> entity = new HttpEntity<>(List.of(roleMap), headers);
 
         restTemplate.postForEntity(
-        keycloakUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/clients/" + clientUuid,
-            entity,
-            Void.class
+                keycloakUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/clients/" + clientUuid,
+                entity,
+                Void.class
         );
     }
+
+    public ResponseEntity<?> refreshToken(String refreshToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", "refresh_token");
+        form.add("client_id", clientId);
+        form.add("client_secret", clientSecret);
+        form.add("refresh_token", refreshToken);
+
+        HttpEntity<?> entity = new HttpEntity<>(form, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    keycloakUrl + "/realms/" + realm + "/protocol/openid-connect/token",
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
+
+            return ResponseEntity.ok(response.getBody());
+
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        }
+    }
+
 }
